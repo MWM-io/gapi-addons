@@ -28,35 +28,43 @@ func (m GCloudServiceAccount) Wrap(h handler.Handler) handler.Handler {
 			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
 		}
 
-		splitAuthHeader := strings.Split(token, " ")
-		if len(splitAuthHeader) == 0 {
-			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
-		}
-
-		payload, err := idtoken.Validate(r.Context(), splitAuthHeader[1], "")
-		if err != nil {
-			// invalid token
-			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
-		}
-
-		if payload.Issuer != "accounts.google.com" && payload.Issuer != "https://accounts.google.com" {
-			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
-		}
-
-		if payload.Claims == nil {
-			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
-		}
-
-		if emailVerified := payload.Claims["email_verified"].(bool); !emailVerified && payload.Claims["email_verified"] != "true" {
-			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
-		}
-
-		if payload.Claims["email"] != m.ServiceAccount {
-			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+		if err := m.VerifyServiceAccount(r, token); err != nil {
+			return nil, err
 		}
 
 		return h.Serve(w, r)
 	})
+}
+
+// VerifyServiceAccount check if the token was sent by a gcloud service account
+func (m GCloudServiceAccount) VerifyServiceAccount(r *http.Request, token string) error {
+	splitAuthHeader := strings.Split(token, " ")
+	if len(splitAuthHeader) == 0 {
+		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+	}
+
+	payload, err := idtoken.Validate(r.Context(), splitAuthHeader[1], "")
+	if err != nil {
+		// invalid token
+		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+	}
+
+	if payload.Issuer != "accounts.google.com" && payload.Issuer != "https://accounts.google.com" {
+		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+	}
+
+	if payload.Claims == nil {
+		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+	}
+
+	if emailVerified := payload.Claims["email_verified"].(bool); !emailVerified && payload.Claims["email_verified"] != "true" {
+		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+	}
+
+	if payload.Claims["email"] != m.ServiceAccount {
+		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+	}
+	return nil
 }
 
 const securitySchemeKey = "gcloud_service_account"
