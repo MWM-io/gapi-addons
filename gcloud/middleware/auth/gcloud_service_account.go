@@ -28,7 +28,7 @@ func (m GCloudServiceAccount) Wrap(h handler.Handler) handler.Handler {
 			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
 		}
 
-		if err := m.verifyServiceAccount(r, token); err != nil {
+		if err := m.VerifyServiceAccount(r, token); err != nil {
 			return nil, err
 		}
 
@@ -36,7 +36,8 @@ func (m GCloudServiceAccount) Wrap(h handler.Handler) handler.Handler {
 	})
 }
 
-func (m *GCloudServiceAccount) verifyServiceAccount(r *http.Request, token string) error {
+// VerifyServiceAccount check if the token was sent by a gcloud service account
+func (m *GCloudServiceAccount) VerifyServiceAccount(r *http.Request, token string) error {
 	splitAuthHeader := strings.Split(token, " ")
 	if len(splitAuthHeader) == 0 {
 		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
