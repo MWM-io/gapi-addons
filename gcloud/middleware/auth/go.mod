@@ -3,7 +3,7 @@ module github.com/mwm-io/gapi-addons/gcloud/middleware/auth
 go 1.19
 
 require (
-	github.com/mwm-io/gapi v0.0.1
+	github.com/mwm-io/gapi v0.2.4
 	github.com/swaggest/openapi-go v0.2.26
 	google.golang.org/api v0.103.0
 )
@@ -23,10 +23,8 @@ require (
 	golang.org/x/sys v0.0.0-20220804214406-8e32c043e418 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20221027153422-115e99e71e1c // indirect
+	google.golang.org/genproto v0.0.0-20221109142239-94d6d90a7d66 // indirect
 	google.golang.org/grpc v1.50.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
-
-replace github.com/mwm-io/gapi => ../../../../gapi
