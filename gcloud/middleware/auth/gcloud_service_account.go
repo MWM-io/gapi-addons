@@ -25,12 +25,12 @@ func (m GCloudServiceAccount) Wrap(h handler.Handler) handler.Handler {
 	return handler.Func(func(w http.ResponseWriter, r *http.Request) (interface{}, error) {
 		token := r.Header.Get(AuthorizationHeader)
 		if token == "" {
-			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+			return nil, errors.Forbidden("invalid_token", "missing token")
 		}
 
 		splitAuthHeader := strings.Split(token, " ")
 		if len(splitAuthHeader) == 0 {
-			return nil, errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+			return nil, errors.Forbidden("invalid_token", "missing token")
 		}
 
 		if err := m.VerifyServiceAccount(r, splitAuthHeader[1]); err != nil {
@@ -46,23 +46,23 @@ func (m GCloudServiceAccount) VerifyServiceAccount(r *http.Request, token string
 	payload, err := idtoken.Validate(r.Context(), token, "")
 	if err != nil {
 		// invalid token
-		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+		return errors.Forbidden("invalid_token", "failed to validate token")
 	}
 
 	if payload.Issuer != "accounts.google.com" && payload.Issuer != "https://accounts.google.com" {
-		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+		return errors.Forbidden("invalid_token", "invalid issuer")
 	}
 
 	if payload.Claims == nil {
-		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+		return errors.Forbidden("invalid_token", "missing claims")
 	}
 
 	if emailVerified := payload.Claims["email_verified"].(bool); !emailVerified && payload.Claims["email_verified"] != "true" {
-		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+		return errors.Forbidden("invalid_token", "invalid token email")
 	}
 
 	if payload.Claims["email"] != m.ServiceAccount {
-		return errors.Err("access forbidden").WithStatus(http.StatusForbidden)
+		return errors.Forbidden("invalid_token", "invalid token email")
 	}
 	return nil
 }
