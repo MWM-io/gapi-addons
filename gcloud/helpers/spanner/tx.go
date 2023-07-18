@@ -7,8 +7,8 @@ import (
 	"cloud.google.com/go/spanner/apiv1/spannerpb"
 )
 
-// ReadTx is a common interface for spanner read only and read/write transactions that only read
-type ReadTx interface {
+// Tx is a common interface for spanner read only and read/write transactions that only read
+type Tx interface {
 	Read(ctx context.Context, table string, keys spanner.KeySet, columns []string) *spanner.RowIterator
 	ReadUsingIndex(ctx context.Context, table, index string, keys spanner.KeySet, columns []string) (ri *spanner.RowIterator)
 	ReadWithOptions(ctx context.Context, table string, keys spanner.KeySet, columns []string, opts *spanner.ReadOptions) (ri *spanner.RowIterator)
@@ -16,11 +16,4 @@ type ReadTx interface {
 	Query(ctx context.Context, statement spanner.Statement) *spanner.RowIterator
 	QueryWithStats(ctx context.Context, statement spanner.Statement) *spanner.RowIterator
 	AnalyzeQuery(ctx context.Context, statement spanner.Statement) (*spannerpb.QueryPlan, error)
-}
-
-// ReadWriteTx is a common interface for spanner read/write transactions
-type ReadWriteTx interface {
-	ReadTx
-	BufferWrite([]*spanner.Mutation) error
-	Update(ctx context.Context, stmt spanner.Statement) (rowCount int64, err error)
 }
