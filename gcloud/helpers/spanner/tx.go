@@ -16,4 +16,6 @@ type Tx interface {
 	Query(ctx context.Context, statement spanner.Statement) *spanner.RowIterator
 	QueryWithStats(ctx context.Context, statement spanner.Statement) *spanner.RowIterator
 	AnalyzeQuery(ctx context.Context, statement spanner.Statement) (*spannerpb.QueryPlan, error)
+	BufferWrite([]*spanner.Mutation) error
+	Update(ctx context.Context, stmt spanner.Statement) (rowCount int64, err error)
 }
