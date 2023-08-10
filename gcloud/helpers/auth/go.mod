@@ -1,4 +1,4 @@
-module github/mwm.io/gapi-addons/gcloud/helpers/auth
+module github/mwm-io/gapi-addons/gcloud/helpers/auth
 
 go 1.20
 
