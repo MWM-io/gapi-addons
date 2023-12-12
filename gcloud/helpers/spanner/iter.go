@@ -38,8 +38,7 @@ func IterToStructs[T any](iter *spanner.RowIterator) ([]T, error) {
 // You can use it to simplify your code when you know there is only one row in the iterator.
 func IterToStruct[T any](iter *spanner.RowIterator) (result T, exist bool, err error) {
 	results, errIter := IterToStructs[T](iter)
-
-	if err != nil {
+	if errIter != nil {
 		return result, false, errIter
 	}
 
