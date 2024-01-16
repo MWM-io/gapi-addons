@@ -19,7 +19,7 @@ func GetOneWithIterator(iter *spanner.RowIterator) (row *spanner.Row, exist bool
 // IterToStructs is a helper function to process a row iterator and convert each row to a struct
 // This function will return an array of structs and/or the spanner error if one occurs.
 func IterToStructs[T any](iter *spanner.RowIterator) ([]T, error) {
-	var results []T
+	var results = make([]T, 0)
 
 	err := iter.Do(func(r *spanner.Row) error {
 		var dest T
