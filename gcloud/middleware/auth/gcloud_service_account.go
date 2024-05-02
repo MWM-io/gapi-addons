@@ -67,6 +67,35 @@ func (m GCloudServiceAccount) VerifyServiceAccount(r *http.Request, token string
 	return nil
 }
 
+// IsEligible checks if the request is eligible for the middleware
+func (m GCloudServiceAccount) IsEligible(r *http.Request) bool {
+	token := r.Header.Get(AuthorizationHeader)
+	if token == "" {
+		return false
+	}
+
+	splitAuthHeader := strings.Split(token, " ")
+	if len(splitAuthHeader) == 0 {
+		return false
+	}
+
+	if len(splitAuthHeader) > 1 {
+		payload, err := idtoken.Validate(r.Context(), token, "")
+		if err != nil {
+			// invalid token
+			return false
+		}
+
+		if payload.Issuer != "accounts.google.com" && payload.Issuer != "https://accounts.google.com" {
+			return false
+		}
+
+		return true
+	}
+
+	return false
+}
+
 const securitySchemeKey = "gcloud_service_account"
 
 // Doc implements the openapi.Documented interface
