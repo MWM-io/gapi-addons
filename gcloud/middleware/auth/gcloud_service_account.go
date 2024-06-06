@@ -80,7 +80,7 @@ func (m GCloudServiceAccount) IsEligible(r *http.Request) bool {
 	}
 
 	if len(splitAuthHeader) > 1 {
-		payload, err := idtoken.Validate(r.Context(), token, "")
+		payload, err := idtoken.Validate(r.Context(), splitAuthHeader[1], "")
 		if err != nil {
 			// invalid token
 			return false
